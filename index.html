@@ -3,12 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>點陣拉不拉多燒金紙 (動畫升級版)</title>
+<title>Q版拉不拉多燒金紙 (超萌還原版)</title>
 <style>
-  /* 基礎設定與手機版型自動適配 */
-  * {
-    box-sizing: border-box;
-  }
+  /* 基礎設定與自動適配 */
+  * { box-sizing: border-box; }
   body {
     margin: 0;
     padding: 20px;
@@ -23,169 +21,161 @@
     touch-action: manipulation;
   }
 
-  /* 記數器：使用響應式字型大小 */
+  /* 記數器 */
   .counter {
     font-size: clamp(18px, 5vw, 24px);
     font-weight: bold;
-    margin-bottom: 4vh;
+    margin-bottom: 3vh;
     color: #5D4037;
     text-align: center;
+    z-index: 10;
   }
   .counter span {
     color: #E53935;
     font-size: clamp(26px, 7vw, 34px);
   }
 
-  /* 遊戲場景容器：自動適配手機螢幕寬度與高度，保持正方形 */
+  /* 遊戲場景容器 */
   #scene {
     position: relative;
     width: 85vw;
     height: 85vw;
-    max-width: 360px;
-    max-height: 360px;
+    max-width: 380px;
+    max-height: 380px;
     background: #ffffff;
-    border-radius: 24px;
-    box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+    border-radius: 30px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     margin-bottom: 4vh;
     overflow: hidden;
   }
 
-  /* 點陣狗狗：使用百分比定位與縮放 */
+  /* 參考圖片繪製的超萌拉不拉多 */
   .dog {
     position: absolute;
-    left: 10%;
-    bottom: 15%;
-    width: 35%;
-    height: 35%;
+    left: 4%;
+    bottom: 12%;
+    width: clamp(120px, 35vw, 160px); 
+    height: clamp(120px, 35vw, 160px);
     z-index: 2;
+    transform-origin: bottom center;
   }
 
   /* 金爐容器 */
   .urn-container {
     position: absolute;
-    right: 10%;
-    bottom: 10%;
-    width: 30%;
-    height: 35%;
+    right: 12%;
+    bottom: 12%;
+    width: 25%;
+    height: 25%;
     display: flex;
     align-items: flex-end;
     justify-content: center;
     z-index: 3;
   }
   
+  /* Q版金爐 */
   .urn {
     width: 100%;
     height: 100%;
+    background: #C62828;
+    border: 3px solid #8E0000;
+    border-radius: 10px 10px 40px 40px; 
     position: absolute;
     bottom: 0;
     z-index: 2;
+    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1);
   }
-  
-  /* 火焰：平時是微弱小火，與金爐相對位置固定 */
-  .fire {
-    width: 70%;
-    height: 70%;
+  .urn::before {
+    content: '';
     position: absolute;
-    bottom: 25%;
+    top: 15%;
+    left: 15%;
+    width: 70%;
+    height: 20%;
+    background: #4A0000;
+    border-radius: 10px;
+  }
+
+  /* 火焰縮放控制層 */
+  .fire-wrapper {
+    position: absolute;
+    bottom: 30%;
     z-index: 1;
-    opacity: 0.3; 
-    transform: scale(0.6);
     transform-origin: bottom center;
   }
 
-  /* 飛行的金紙元素（由JS動態生成，百分比確保軌跡精準） */
+  /* Q版火焰 */
+  .fire {
+    font-size: clamp(50px, 15vw, 70px);
+    transform-origin: bottom center;
+    animation: fireFlicker 0.4s infinite alternate ease-in-out;
+    filter: drop-shadow(0 0 10px rgba(255, 87, 34, 0.5));
+  }
+
+  /* 飛行的金紙 */
   .flying-paper {
     position: absolute;
-    width: 10%;
-    height: 12%;
+    width: clamp(20px, 6vw, 30px);
+    height: clamp(30px, 8vw, 40px);
+    background-color: #FDD835;
+    border: 1px solid #FBC02D;
+    border-radius: 4px;
     z-index: 4;
     pointer-events: none;
+    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
   }
-
-  /* 按鈕：保持點陣風格的金紙樣式 */
-  button {
-    width: clamp(140px, 40vw, 180px);
-    height: 60px;
-    background-color: #FDD835;
-    border: 4px solid #333;
-    border-radius: 0;
-    color: #333;
-    font-size: clamp(18px, 4vw, 22px);
-    font-weight: bold;
-    cursor: pointer;
-    position: relative;
-    box-shadow: 4px 4px 0px #333;
-    transition: transform 0.1s, box-shadow 0.1s;
-    -webkit-tap-highlight-color: transparent;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  button::before {
+  .flying-paper::after {
     content: '';
     position: absolute;
-    left: 15px;
-    width: 15px;
-    height: 15px;
+    width: 30%;
+    height: 30%;
     background-color: #E53935;
-    border: 2px solid #333;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 2px;
   }
 
+  /* Q版按鈕設計 */
+  button {
+    width: clamp(160px, 50vw, 220px);
+    padding: 18px 0;
+    background-color: #FF9800;
+    border: none;
+    border-radius: 50px;
+    color: white;
+    font-size: clamp(20px, 5vw, 24px);
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 6px 0 #E65100, 0 10px 15px rgba(230, 81, 0, 0.3);
+    transition: transform 0.1s, box-shadow 0.1s;
+    -webkit-tap-highlight-color: transparent;
+  }
   button:active {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #333;
+    transform: translateY(6px);
+    box-shadow: 0 0px 0 #E65100, 0 2px 5px rgba(230, 81, 0, 0.3);
   }
 
-  /* --- 動畫效果定義 --- */
+  /* --- 動畫區 --- */
   
-  /* 狗狗點頭與微晃 */
-  @keyframes dogNod {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-6px) rotate(-3deg); }
+  /* 狗狗丟金紙動畫 */
+  @keyframes dogThrow {
+    0%, 100% { transform: translateY(0) rotate(0); }
+    50% { transform: translateY(-12px) rotate(-8deg); }
   }
 
-  /* 金紙拋入軌跡（從左下偏中飛往右下金爐口） */
+  /* 金紙拋物線 */
   @keyframes throwPaper {
-    0% {
-      left: 32%;
-      bottom: 35%;
-      transform: rotate(0deg) scale(1);
-      opacity: 1;
-    }
-    40% {
-      left: 50%;
-      bottom: 50%; /* 形成拋物線頂點 */
-      transform: rotate(90deg) scale(1.1);
-    }
-    100% {
-      left: 68%; 
-      bottom: 26%; /* 準確落入金爐中央 */
-      transform: rotate(210deg) scale(0.6);
-      opacity: 0.5;
-    }
+    0% { left: 30%; bottom: 40%; transform: rotate(0deg) scale(1); opacity: 1; }
+    50% { left: 45%; bottom: 55%; transform: rotate(180deg) scale(1.1); }
+    100% { left: 72%; bottom: 25%; transform: rotate(360deg) scale(0.4); opacity: 0; }
   }
 
-  /* 熊熊烈火突發暴燃動畫 */
-  @keyframes fireFlareUp {
-    0% { transform: scale(0.6); opacity: 0.3; }
-    12% { transform: scale(1.4, 1.7); opacity: 1; }
-    30% { transform: scale(1.5, 1.8); opacity: 1; }
-    60% { transform: scale(1.1, 1.3); opacity: 0.9; }
-    100% { transform: scale(0.6); opacity: 0.3; }
+  @keyframes fireFlicker {
+    0% { transform: scale(0.95) rotate(-3deg); }
+    100% { transform: scale(1.05) rotate(3deg); }
   }
 
-  /* 日常微弱搖擺的火苗 */
-  @keyframes fireIdle {
-    0%, 100% { transform: scale(0.6, 0.6); opacity: 0.3; }
-    50% { transform: scale(0.65, 0.55); opacity: 0.4; }
-  }
-
-  .animate-dog { animation: dogNod 0.25s ease; }
-  
-  /* 狀態切換類別 */
-  .fire-idle { animation: fireIdle 0.6s infinite alternate ease-in-out; }
-  .fire-flare { animation: fireFlareUp 0.6s ease-out forwards; }
+  .animate-dog { animation: dogThrow 0.3s ease; }
 </style>
 </head>
 <body>
@@ -194,100 +184,112 @@
 
 <div id="scene">
   <div class="dog" id="dog">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 12" width="100%" height="100%">
-      <rect x="2" y="2" width="8" height="8" fill="#F6C773" />
-      <rect x="1" y="3" width="2" height="5" fill="#E2A946" />
-      <rect x="9" y="3" width="2" height="5" fill="#E2A946" />
-      <rect x="3" y="4" width="2" height="2" fill="#333" />
-      <rect x="7" y="4" width="2" height="2" fill="#333" />
-      <rect x="4" y="4" width="1" height="1" fill="#FFF" />
-      <rect x="8" y="4" width="1" height="1" fill="#FFF" />
-      <rect x="5" y="7" width="2" height="1" fill="#555" />
-      <rect x="5" y="8" width="2" height="2" fill="#F0A8A8" />
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+      <path d="M 25 75 Q 10 85 15 65 Z" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      
+      <ellipse cx="30" cy="75" rx="12" ry="15" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      <ellipse cx="70" cy="75" rx="12" ry="15" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      
+      <path d="M 35 45 C 20 80 30 90 50 90 C 70 90 80 80 65 45 Z" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      
+      <path d="M 40 50 C 35 75 40 85 50 85 C 60 85 65 75 60 50 Z" fill="#FFF4DC"/>
+      
+      <rect x="38" y="65" width="10" height="25" rx="5" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      <rect x="52" y="65" width="10" height="25" rx="5" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="35" rx="27" ry="23" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
+      
+      <path d="M 26 30 C 12 35 15 60 25 55 C 32 50 28 40 26 30 Z" fill="#E5B876" stroke="#3A2518" stroke-width="2"/>
+      <path d="M 74 30 C 88 35 85 60 75 55 C 68 50 72 40 74 30 Z" fill="#E5B876" stroke="#3A2518" stroke-width="2"/>
+      
+      <ellipse cx="50" cy="43" rx="15" ry="11" fill="#FFF4DC" stroke="#3A2518" stroke-width="1.5"/>
+      
+      <ellipse cx="50" cy="38" rx="6" ry="4" fill="#111"/>
+      <ellipse cx="48" cy="37" rx="2" ry="1" fill="#FFF" opacity="0.6"/>
+      
+      <path d="M 44 46 Q 50 50 56 46" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
+      <path d="M 47 48 Q 50 55 53 48 Z" fill="#FF8593" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/>
+      
+      <ellipse cx="38" cy="31" rx="4.5" ry="5.5" fill="#111"/>
+      <ellipse cx="62" cy="31" rx="4.5" ry="5.5" fill="#111"/>
+      
+      <circle cx="37" cy="29" r="2" fill="#FFF"/>
+      <circle cx="40" cy="32" r="0.8" fill="#FFF"/>
+      <circle cx="61" cy="29" r="2" fill="#FFF"/>
+      <circle cx="64" cy="32" r="0.8" fill="#FFF"/>
     </svg>
   </div>
 
   <div class="urn-container">
-    <div class="fire fire-idle" id="fire">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 8 8" width="100%" height="100%">
-        <rect x="3" y="0" width="2" height="8" fill="#F44336" />
-        <rect x="2" y="2" width="4" height="6" fill="#FF9800" />
-        <rect x="3" y="4" width="2" height="4" fill="#FFEB3B" />
-      </svg>
+    <div class="fire-wrapper" id="fireWrapper" style="transform: scale(0.6);">
+      <div class="fire">🔥</div>
     </div>
-
-    <div class="urn">
-      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10" width="100%" height="100%">
-        <rect x="1" y="1" width="8" height="2" fill="#8E0000" />
-        <rect x="2" y="3" width="6" height="5" fill="#C62828" />
-        <rect x="2" y="8" width="1" height="2" fill="#8E0000" />
-        <rect x="7" y="8" width="1" height="2" fill="#8E0000" />
-        <rect x="4" y="4" width="2" height="2" fill="#FFC107" />
-        <rect x="5" y="5" width="1" height="1" fill="#C62828" />
-      </svg>
-    </div>
+    <div class="urn"></div>
   </div>
 </div>
 
 <button id="burnBtn">燒金紙 🙏</button>
-
-<div id="paperTemplate" style="display: none;">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5 6" width="100%" height="100%">
-    <rect x="0" y="0" width="5" height="6" fill="#FDD835" />
-    <rect x="1" y="1" width="3" height="4" fill="#FBC02D" />
-    <rect x="2" y="2" width="1" height="2" fill="#E53935" />
-  </svg>
-</div>
 
 <script>
   let count = 0;
   const btn = document.getElementById('burnBtn');
   const countEl = document.getElementById('count');
   const dog = document.getElementById('dog');
-  const fire = document.getElementById('fire');
+  const fireWrapper = document.getElementById('fireWrapper');
   const scene = document.getElementById('scene');
-  const paperTemplate = document.getElementById('paperTemplate');
+
+  // 熱量系統變數
+  let currentHeat = 0.6; 
+  const minHeat = 0.6;   
+  const maxHeat = 3.5;   
+  const heatPerPaper = 0.4; 
+  const decayRate = 0.02;   
 
   btn.addEventListener('click', () => {
-    // 1. 讓狗狗動起來
+    // 狗狗丟金紙動畫
     dog.classList.remove('animate-dog');
     void dog.offsetWidth; 
     dog.classList.add('animate-dog');
 
-    // 2. 動態實體化一張金紙並執行飛進去的動畫
+    // 產生飛行金紙
     const paper = document.createElement('div');
     paper.className = 'flying-paper';
-    paper.innerHTML = paperTemplate.innerHTML;
     scene.appendChild(paper);
 
-    // 金紙飛躍總時間設定為 0.35 秒
-    paper.style.animation = 'throwPaper 0.35s forwards ease-in';
+    const flyDuration = 350; 
+    paper.style.animation = `throwPaper ${flyDuration}ms forwards ease-in-out`;
 
-    // 3. 計算金紙抵達金爐的時間點 (0.35 秒)
+    // 抵達火爐後觸發
     setTimeout(() => {
-      // 金紙進爐，銷毀飛行的金紙節點
-      paper.remove();
-
-      // 增加計數更新顯示
+      paper.remove(); 
       count++;
       countEl.textContent = count;
 
-      // 4. 讓火焰瞬間暴燃 (Flare Up)
-      fire.classList.remove('fire-idle', 'fire-flare');
-      void fire.offsetWidth; // 強制重繪動畫
-      fire.classList.add('fire-flare');
+      currentHeat += heatPerPaper;
+      if (currentHeat > maxHeat) currentHeat = maxHeat; 
+      updateFireScale();
 
-      // 5. 暴燃動畫播完後 (0.6秒)，自動切換回常態微火狀態
-      setTimeout(() => {
-        // 確保沒有在切換途中又塞了新的金紙才觸發回復
-        if (fire.classList.contains('fire-flare')) {
-          fire.classList.remove('fire-flare');
-          fire.classList.add('fire-idle');
-        }
-      }, 600);
-
-    }, 350);
+    }, flyDuration);
   });
+
+  // 更新火焰大小
+  function updateFireScale() {
+    fireWrapper.style.transform = `scale(${currentHeat})`;
+    if(currentHeat > 2.0) {
+       fireWrapper.style.filter = 'brightness(1.2)';
+    } else {
+       fireWrapper.style.filter = 'brightness(1)';
+    }
+  }
+
+  // 自動冷卻系統
+  setInterval(() => {
+    if (currentHeat > minHeat) {
+      currentHeat -= decayRate;
+      if (currentHeat < minHeat) currentHeat = minHeat;
+      updateFireScale();
+    }
+  }, 50);
 </script>
 </body>
 </html>
