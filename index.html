@@ -1,295 +1,914 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Q版拉不拉多燒金紙 (超萌還原版)</title>
-<style>
-  /* 基礎設定與自動適配 */
-  * { box-sizing: border-box; }
-  body {
-    margin: 0;
-    padding: 20px;
-    height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    background-color: #FFF3E0;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    overflow: hidden;
-    touch-action: manipulation;
-  }
-
-  /* 記數器 */
-  .counter {
-    font-size: clamp(18px, 5vw, 24px);
-    font-weight: bold;
-    margin-bottom: 3vh;
-    color: #5D4037;
-    text-align: center;
-    z-index: 10;
-  }
-  .counter span {
-    color: #E53935;
-    font-size: clamp(26px, 7vw, 34px);
-  }
-
-  /* 遊戲場景容器 */
-  #scene {
-    position: relative;
-    width: 85vw;
-    height: 85vw;
-    max-width: 380px;
-    max-height: 380px;
-    background: #ffffff;
-    border-radius: 30px; 
-    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    margin-bottom: 4vh;
-    overflow: hidden;
-  }
-
-  /* 參考圖片繪製的超萌拉不拉多 */
-  .dog {
-    position: absolute;
-    left: 4%;
-    bottom: 12%;
-    width: clamp(120px, 35vw, 160px); 
-    height: clamp(120px, 35vw, 160px);
-    z-index: 2;
-    transform-origin: bottom center;
-  }
-
-  /* 金爐容器 */
-  .urn-container {
-    position: absolute;
-    right: 12%;
-    bottom: 12%;
-    width: 25%;
-    height: 25%;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    z-index: 3;
-  }
-  
-  /* Q版金爐 */
-  .urn {
-    width: 100%;
-    height: 100%;
-    background: #C62828;
-    border: 3px solid #8E0000;
-    border-radius: 10px 10px 40px 40px; 
-    position: absolute;
-    bottom: 0;
-    z-index: 2;
-    box-shadow: inset -5px -5px 10px rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.1);
-  }
-  .urn::before {
-    content: '';
-    position: absolute;
-    top: 15%;
-    left: 15%;
-    width: 70%;
-    height: 20%;
-    background: #4A0000;
-    border-radius: 10px;
-  }
-
-  /* 火焰縮放控制層 */
-  .fire-wrapper {
-    position: absolute;
-    bottom: 30%;
-    z-index: 1;
-    transform-origin: bottom center;
-  }
-
-  /* Q版火焰 */
-  .fire {
-    font-size: clamp(50px, 15vw, 70px);
-    transform-origin: bottom center;
-    animation: fireFlicker 0.4s infinite alternate ease-in-out;
-    filter: drop-shadow(0 0 10px rgba(255, 87, 34, 0.5));
-  }
-
-  /* 飛行的金紙 */
-  .flying-paper {
-    position: absolute;
-    width: clamp(20px, 6vw, 30px);
-    height: clamp(30px, 8vw, 40px);
-    background-color: #FDD835;
-    border: 1px solid #FBC02D;
-    border-radius: 4px;
-    z-index: 4;
-    pointer-events: none;
-    box-shadow: 1px 1px 3px rgba(0,0,0,0.2);
-  }
-  .flying-paper::after {
-    content: '';
-    position: absolute;
-    width: 30%;
-    height: 30%;
-    background-color: #E53935;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 2px;
-  }
-
-  /* Q版按鈕設計 */
-  button {
-    width: clamp(160px, 50vw, 220px);
-    padding: 18px 0;
-    background-color: #FF9800;
-    border: none;
-    border-radius: 50px;
-    color: white;
-    font-size: clamp(20px, 5vw, 24px);
-    font-weight: bold;
-    cursor: pointer;
-    box-shadow: 0 6px 0 #E65100, 0 10px 15px rgba(230, 81, 0, 0.3);
-    transition: transform 0.1s, box-shadow 0.1s;
-    -webkit-tap-highlight-color: transparent;
-  }
-  button:active {
-    transform: translateY(6px);
-    box-shadow: 0 0px 0 #E65100, 0 2px 5px rgba(230, 81, 0, 0.3);
-  }
-
-  /* --- 動畫區 --- */
-  
-  /* 狗狗丟金紙動畫 */
-  @keyframes dogThrow {
-    0%, 100% { transform: translateY(0) rotate(0); }
-    50% { transform: translateY(-12px) rotate(-8deg); }
-  }
-
-  /* 金紙拋物線 */
-  @keyframes throwPaper {
-    0% { left: 30%; bottom: 40%; transform: rotate(0deg) scale(1); opacity: 1; }
-    50% { left: 45%; bottom: 55%; transform: rotate(180deg) scale(1.1); }
-    100% { left: 72%; bottom: 25%; transform: rotate(360deg) scale(0.4); opacity: 0; }
-  }
-
-  @keyframes fireFlicker {
-    0% { transform: scale(0.95) rotate(-3deg); }
-    100% { transform: scale(1.05) rotate(3deg); }
-  }
-
-  .animate-dog { animation: dogThrow 0.3s ease; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>曼谷自由行｜行前與抵達隨身手冊</title>
+  <!-- 載入 Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 載入 Google Fonts: Noto Sans TC 與 Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Noto+Sans+TC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <!-- 載入 Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Inter"', '"Noto Sans TC"', 'sans-serif'],
+          },
+          colors: {
+            cream: '#FAF7F2',
+            sand: '#F2ECE1',
+            terracotta: '#D96B43',
+            amberwarm: '#E59A38',
+            thaiGold: '#C59B27',
+            deepTeal: '#1E4E5F',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* 隱藏卷軸但保留滾動功能 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* 點擊回饋動畫 */
+    .tap-scale:active {
+      transform: scale(0.98);
+      transition: transform 0.1s ease;
+    }
+    /* 底部安全區域適配 */
+    .pb-safe {
+      padding-bottom: env(safe-area-inset-bottom, 16px);
+    }
+  </style>
 </head>
-<body>
+<body class="bg-stone-200 text-stone-800 antialiased selection:bg-amber-200">
 
-<div class="counter">已燒化金紙：<span id="count">0</span> 張</div>
+  <!-- 手機版型置中容器 (最大寬度 480px) -->
+  <div class="max-w-[480px] mx-auto min-h-screen bg-cream shadow-2xl relative flex flex-col">
 
-<div id="scene">
-  <div class="dog" id="dog">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
-      <path d="M 25 75 Q 10 85 15 65 Z" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      
-      <ellipse cx="30" cy="75" rx="12" ry="15" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      <ellipse cx="70" cy="75" rx="12" ry="15" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      
-      <path d="M 35 45 C 20 80 30 90 50 90 C 70 90 80 80 65 45 Z" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      
-      <path d="M 40 50 C 35 75 40 85 50 85 C 60 85 65 75 60 50 Z" fill="#FFF4DC"/>
-      
-      <rect x="38" y="65" width="10" height="25" rx="5" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      <rect x="52" y="65" width="10" height="25" rx="5" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      
-      <ellipse cx="50" cy="35" rx="27" ry="23" fill="#F5D298" stroke="#3A2518" stroke-width="2"/>
-      
-      <path d="M 26 30 C 12 35 15 60 25 55 C 32 50 28 40 26 30 Z" fill="#E5B876" stroke="#3A2518" stroke-width="2"/>
-      <path d="M 74 30 C 88 35 85 60 75 55 C 68 50 72 40 74 30 Z" fill="#E5B876" stroke="#3A2518" stroke-width="2"/>
-      
-      <ellipse cx="50" cy="43" rx="15" ry="11" fill="#FFF4DC" stroke="#3A2518" stroke-width="1.5"/>
-      
-      <ellipse cx="50" cy="38" rx="6" ry="4" fill="#111"/>
-      <ellipse cx="48" cy="37" rx="2" ry="1" fill="#FFF" opacity="0.6"/>
-      
-      <path d="M 44 46 Q 50 50 56 46" fill="none" stroke="#111" stroke-width="1.5" stroke-linecap="round"/>
-      <path d="M 47 48 Q 50 55 53 48 Z" fill="#FF8593" stroke="#111" stroke-width="1.5" stroke-linejoin="round"/>
-      
-      <ellipse cx="38" cy="31" rx="4.5" ry="5.5" fill="#111"/>
-      <ellipse cx="62" cy="31" rx="4.5" ry="5.5" fill="#111"/>
-      
-      <circle cx="37" cy="29" r="2" fill="#FFF"/>
-      <circle cx="40" cy="32" r="0.8" fill="#FFF"/>
-      <circle cx="61" cy="29" r="2" fill="#FFF"/>
-      <circle cx="64" cy="32" r="0.8" fill="#FFF"/>
-    </svg>
-  </div>
+    <!-- 頂部固定標頭與進度摘要 -->
+    <header class="sticky top-0 z-30 bg-cream/95 backdrop-blur-md border-b border-stone-200/80 px-4 pt-4 pb-3">
+      <div class="flex items-center justify-between mb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-500 to-terracotta text-white flex items-center justify-center shadow-sm">
+            <i class="ph-fill ph-airplane-tilt text-lg"></i>
+          </span>
+          <div>
+            <h1 class="text-base font-bold text-stone-900 leading-tight">曼谷自由行隨身手冊</h1>
+            <p class="text-[11px] text-stone-500">2026 最新入境・電壓・禁忌・匯率</p>
+          </div>
+        </div>
+        <span id="header-badge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200">
+          出發倒數準備
+        </span>
+      </div>
 
-  <div class="urn-container">
-    <div class="fire-wrapper" id="fireWrapper" style="transform: scale(0.6);">
-      <div class="fire">🔥</div>
+      <!-- 整體進度條區塊 -->
+      <div class="bg-white rounded-2xl p-2.5 border border-stone-200/80 shadow-xs">
+        <div class="flex items-center justify-between text-xs mb-1.5">
+          <span class="font-medium text-stone-600 flex items-center gap-1">
+            <i class="ph-fill ph-check-circle text-emerald-600"></i>
+            行前與抵達準備進度
+          </span>
+          <span id="progress-text" class="font-bold text-stone-900">已完成 0 / 12 項 (0%)</span>
+        </div>
+        <div class="w-full h-2 bg-stone-100 rounded-full overflow-hidden">
+          <div id="progress-bar" class="h-full bg-gradient-to-r from-amber-500 to-emerald-500 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Toast 提示訊息框 (取代 alert) -->
+    <div id="toast" class="fixed top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none opacity-0 transition-all duration-300 translate-y-[-10px]">
+      <div class="bg-stone-900/95 text-white text-xs font-medium px-4 py-2.5 rounded-full shadow-lg flex items-center gap-2 whitespace-nowrap">
+        <i class="ph-fill ph-check-circle text-emerald-400 text-base"></i>
+        <span id="toast-msg">已複製到剪貼簿</span>
+      </div>
     </div>
-    <div class="urn"></div>
+
+    <!-- 自訂確認重置對話框 (取代 confirm) -->
+    <div id="reset-modal" class="fixed inset-0 z-50 bg-stone-900/50 backdrop-blur-xs hidden items-center justify-center p-4">
+      <div class="bg-white rounded-3xl max-w-[340px] w-full p-5 shadow-xl border border-stone-100 animate-fade-in">
+        <div class="w-11 h-11 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mb-3">
+          <i class="ph-bold ph-arrow-counter-clockwise text-xl"></i>
+        </div>
+        <h3 class="text-base font-bold text-stone-900 mb-1">確定要重置所有勾選嗎？</h3>
+        <p class="text-xs text-stone-500 leading-relaxed mb-4">這將會清除目前所有的行前清單勾選紀錄，恢復為未完成狀態。</p>
+        <div class="flex gap-2">
+          <button onclick="closeResetModal()" class="flex-1 py-2.5 rounded-xl bg-stone-100 text-stone-700 text-xs font-semibold tap-scale">取消</button>
+          <button onclick="confirmResetChecklist()" class="flex-1 py-2.5 rounded-xl bg-red-600 text-white text-xs font-semibold tap-scale">確定重置</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 主要內容滾動區 -->
+    <main class="flex-1 px-4 pt-3 pb-28 space-y-4">
+
+      <!-- ================= 分頁 1：行前清單 (Checklist) ================= -->
+      <section id="tab-checklist" class="tab-content space-y-4">
+        <!-- 篩選與重置工具列 -->
+        <div class="flex items-center justify-between gap-2">
+          <div class="inline-flex bg-stone-200/70 p-1 rounded-xl">
+            <button onclick="setFilter('all')" id="filter-all" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-stone-900 shadow-xs transition-all">
+              全部項目
+            </button>
+            <button onclick="setFilter('uncompleted')" id="filter-uncompleted" class="px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 transition-all">
+              僅看未完成
+            </button>
+          </div>
+          <button onclick="openResetModal()" class="px-3 py-1.5 rounded-xl bg-white border border-stone-200 text-stone-600 hover:text-red-600 text-xs font-medium flex items-center gap-1 shadow-2xs tap-scale">
+            <i class="ph ph-arrow-counter-clockwise"></i>
+            重置勾選
+          </button>
+        </div>
+
+        <!-- 動態生成清單容器 -->
+        <div id="checklist-container" class="space-y-4"></div>
+      </section>
+
+      <!-- ================= 分頁 2：抵達指南 (Arrival) ================= -->
+      <section id="tab-arrival" class="tab-content hidden space-y-4">
+        <!-- 入境新規重點卡 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-deepTeal/10 text-deepTeal flex items-center justify-center">
+              <i class="ph-fill ph-passport text-lg"></i>
+            </span>
+            <h2 class="text-sm font-bold text-stone-900">2026 台灣旅客入境新規重點</h2>
+          </div>
+
+          <div class="grid grid-cols-2 gap-2.5">
+            <div class="bg-cream rounded-2xl p-3 border border-stone-200/60">
+              <div class="text-[11px] text-stone-500 mb-0.5">觀光免簽停留</div>
+              <div class="text-base font-bold text-deepTeal">最長 30 天</div>
+              <div class="text-[11px] text-stone-500 mt-1">護照效期需滿 6 個月</div>
+            </div>
+            <div class="bg-cream rounded-2xl p-3 border border-stone-200/60">
+              <div class="text-[11px] text-stone-500 mb-0.5">現金抽查門檻</div>
+              <div class="text-base font-bold text-terracotta">2 萬泰銖 / 人</div>
+              <div class="text-[11px] text-stone-500 mt-1">家庭 4 萬・僅認現鈔</div>
+            </div>
+          </div>
+
+          <div class="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3 text-xs text-amber-950 space-y-1.5">
+            <div class="font-bold flex items-center justify-between">
+              <span class="flex items-center gap-1.5">
+                <i class="ph-fill ph-qr-code text-amber-600 text-base"></i>
+                TDAC 數位入境卡（抵達前 72 小時內填報）
+              </span>
+              <button onclick="copyText('https://tdac.immigration.go.th', '已複製 TDAC 官方網址')" class="px-2 py-1 bg-amber-600 text-white rounded-lg text-[11px] font-semibold tap-scale">
+                複製網址
+              </button>
+            </div>
+            <p class="text-[11px] text-amber-900/90 leading-relaxed">
+              紙本入境卡已全面取消。請務必於出發前 3 天內至官方網站（<span class="underline font-medium">tdac.immigration.go.th</span>）免費填寫並截圖 QR Code，切勿誤入收費釣魚網站。
+            </p>
+          </div>
+        </div>
+
+        <!-- 素萬那普機場 (BKK) 通關動線 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs">BKK</span>
+              <div>
+                <h2 class="text-sm font-bold text-stone-900">素萬那普機場（BKK）通關動線</h2>
+                <p class="text-[11px] text-stone-500">華航、長榮、星宇、泰航主要降落機場</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="relative pl-6 space-y-4 before:content-[''] before:absolute before:left-[11px] before:top-2 before:bottom-2 before:w-0.5 before:bg-stone-200">
+            <!-- Step 1 -->
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 w-6 h-6 rounded-full bg-deepTeal text-white text-xs font-bold flex items-center justify-center">1</span>
+              <h3 class="text-xs font-bold text-stone-900">2 樓｜移民官查驗（Immigration）</h3>
+              <p class="text-xs text-stone-600 mt-0.5 leading-relaxed">備妥護照與手機相簿中的 TDAC QR Code 截圖（調高螢幕亮度），必要時出示回程機票與飯店訂單。</p>
+            </div>
+            <!-- Step 2 -->
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 w-6 h-6 rounded-full bg-deepTeal text-white text-xs font-bold flex items-center justify-center">2</span>
+              <h3 class="text-xs font-bold text-stone-900">2 樓｜提領行李 & 海關免稅查驗</h3>
+              <p class="text-xs text-stone-600 mt-0.5 leading-relaxed">確認同行親友各自提拿自己的免稅菸酒（每人限 1 條菸、1 公升酒），切勿集中裝在同一袋。</p>
+            </div>
+            <!-- Step 3 -->
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 w-6 h-6 rounded-full bg-amber-500 text-white text-xs font-bold flex items-center justify-center">3</span>
+              <h3 class="text-xs font-bold text-stone-900">B1 層｜最佳匯率換匯 & 機場快線（ARL）</h3>
+              <p class="text-xs text-stone-600 mt-0.5 leading-relaxed">出關後搭手扶梯下至 B1 層（往 Airport Rail Link 方向），有 <span class="font-semibold text-stone-800">SuperRich 橘標、Happy Rich</span>，匯率遠優於 2 樓銀行！換匯需出示護照正本，記得多換幾張 100 泰銖小鈔。</p>
+            </div>
+            <!-- Step 4 -->
+            <div class="relative">
+              <span class="absolute -left-6 top-0.5 w-6 h-6 rounded-full bg-terracotta text-white text-xs font-bold flex items-center justify-center">4</span>
+              <h3 class="text-xs font-bold text-stone-900">1 樓｜Grab 網約車 / 排班計程車</h3>
+              <p class="text-xs text-stone-600 mt-0.5 leading-relaxed">搭乘 Grab / Bolt 請依指標前往 1 樓 <span class="font-semibold text-stone-800">4 號門外</span>指定上車區；排班跳錶計程車（Public Taxi）需另加 50 泰銖機場服務費與高速公路過路費。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 廊曼機場 (DMK) 進市區 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-2.5">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-terracotta/15 text-terracotta flex items-center justify-center font-bold text-xs">DMK</span>
+            <div>
+              <h2 class="text-sm font-bold text-stone-900">廊曼機場（DMK）進市區重點</h2>
+              <p class="text-[11px] text-stone-500">台灣虎航、亞航、獅航等廉價航空主要機場</p>
+            </div>
+          </div>
+          <ul class="text-xs text-stone-600 space-y-2 leading-relaxed">
+            <li class="flex items-start gap-2">
+              <i class="ph-fill ph-train text-terracotta text-base shrink-0 mt-0.5"></i>
+              <span><strong class="text-stone-800">SRT 紅線捷運：</strong>依指標步行連通道前往 Don Mueang 車站，可搭至 Bang Sue（Krung Thep Aphiwat）轉乘 MRT 藍線進市區，避開地面塞車。</span>
+            </li>
+            <li class="flex items-start gap-2">
+              <i class="ph-fill ph-taxi text-amber-600 text-base shrink-0 mt-0.5"></i>
+              <span><strong class="text-stone-800">網約車與計程車：</strong>國際線第 1 航廈（T1）入境後依 Grab 專屬指標前往乘車點；或至 8 號門附近抽取排班計程車號碼牌。</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= 分頁 3：電壓與禁忌 (Rules) ================= -->
+      <section id="tab-rules" class="tab-content hidden space-y-4">
+        <!-- 電壓與插座規格卡 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+                <i class="ph-fill ph-plug-charging text-lg"></i>
+              </span>
+              <h2 class="text-sm font-bold text-stone-900">泰國電壓與插座規格</h2>
+            </div>
+            <span class="text-xs font-bold px-2.5 py-1 rounded-lg bg-stone-100 text-stone-800">220V / 50Hz</span>
+          </div>
+
+          <!-- 視覺警示徽章網格 -->
+          <div class="space-y-2">
+            <!-- 綠牌通行 -->
+            <div class="rounded-2xl bg-emerald-50/90 border border-emerald-200 p-3 flex items-start gap-2.5">
+              <span class="px-2 py-0.5 rounded-md bg-emerald-600 text-white text-[10px] font-bold shrink-0 mt-0.5">綠牌通行</span>
+              <div class="text-xs text-emerald-950 leading-relaxed">
+                <strong>雙腳扁型插頭（Type A）& 國際電壓（100–240V）：</strong>泰國多數飯店使用複合式萬用插座，台灣手機、相機、筆電、Switch 充電器皆可<strong>直接插入使用</strong>，無需轉接頭與變壓器。
+              </div>
+            </div>
+
+            <!-- 黃牌注意 -->
+            <div class="rounded-2xl bg-amber-50/90 border border-amber-200 p-3 flex items-start gap-2.5">
+              <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold shrink-0 mt-0.5">黃牌注意</span>
+              <div class="text-xs text-amber-950 leading-relaxed">
+                <strong>三腳插頭（含圓形接地腳）：</strong>部分舊型插座接地孔尺寸不同，若筆電為三孔插頭，建議自備<strong>三轉二轉接頭</strong>。
+              </div>
+            </div>
+
+            <!-- 紅牌嚴禁 -->
+            <div class="rounded-2xl bg-red-50/90 border border-red-200 p-3 flex items-start gap-2.5">
+              <span class="px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold shrink-0 mt-0.5">紅牌嚴禁</span>
+              <div class="text-xs text-red-950 leading-relaxed">
+                <strong>110V 單電壓發熱電器：</strong>台灣購買的一般<strong>吹風機、離子夾、電捲棒、快煮壺</strong>切勿直接插上（會瞬間燒毀走火），小型變壓器亦無法負荷高瓦數。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 絕對紅線法規 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+              <i class="ph-fill ph-warning-octagon text-lg"></i>
+            </span>
+            <h2 class="text-sm font-bold text-stone-900">泰國絕對紅線法規（重罰/刑責）</h2>
+          </div>
+
+          <div class="space-y-2.5">
+            <div class="p-3 rounded-2xl bg-red-50/70 border border-red-200/80 space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold">紅牌嚴禁</span>
+                <h3 class="text-xs font-bold text-red-950">電子煙與加熱菸全面違法</h3>
+              </div>
+              <p class="text-xs text-red-900/90 leading-relaxed">
+                隨身或託運攜帶、持有、吸食任何電子煙、加熱菸及煙油均屬重罪，警察臨檢極嚴，查獲面臨數萬泰銖罰款甚至拘留監禁。
+              </p>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-red-50/70 border border-red-200/80 space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold">紅牌嚴禁</span>
+                <h3 class="text-xs font-bold text-red-950">大麻限醫療用途・嚴禁帶回台灣</h3>
+              </div>
+              <p class="text-xs text-red-900/90 leading-relaxed">
+                觀光客無醫師處方不得購買或於公共場所吸食大麻；<strong>嚴禁攜帶任何含大麻葉圖案、THC / CBD 成分的零食、軟糖、茶包或精油返台</strong>（台灣依毒品罪論處）。
+              </p>
+            </div>
+
+            <div class="p-3 rounded-2xl bg-amber-50/80 border border-amber-200/80 space-y-1">
+              <div class="flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold">黃牌注意</span>
+                <h3 class="text-xs font-bold text-amber-950">免稅菸酒規定 & 超商賣酒時段</h3>
+              </div>
+              <p class="text-xs text-amber-950/90 leading-relaxed">
+                每人限帶 <strong>1 條菸（200 支）與 1 公升酒</strong>，同行親友<strong>務必分開各自拿在手上/包內</strong>（集中放同一袋會被海關認定單人超帶重罰）。超商與賣場僅於 <strong>11:00–14:00</strong> 及 <strong>17:00–24:00</strong> 販售酒類。
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 王室與寺廟文化禮儀 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-amber-100 text-thaiGold flex items-center justify-center">
+              <i class="ph-fill ph-bank text-lg"></i>
+            </span>
+            <h2 class="text-sm font-bold text-stone-900">王室尊嚴與寺廟參拜禮儀</h2>
+          </div>
+
+          <ul class="space-y-2.5 text-xs text-stone-700">
+            <li class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-cream">
+              <span class="px-2 py-0.5 rounded-md bg-red-600 text-white text-[10px] font-bold shrink-0 mt-0.5">嚴禁</span>
+              <span><strong>不可踩踏泰銖鈔票：</strong>泰銖印有國王肖像，鈔票或硬幣掉落地面時切勿用腳踩住（屬褻瀆王室行為），亦不可公開評論王室。</span>
+            </li>
+            <li class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-cream">
+              <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold shrink-0 mt-0.5">注意</span>
+              <span><strong>寺廟服裝規範：</strong>進入大皇宮、玉佛寺、鄭王廟等，<strong>上衣需遮肩（不可無袖、露肚）、下著需過膝（不可穿破洞牛仔褲或緊身瑜珈褲）</strong>，入殿需脫鞋。</span>
+            </li>
+            <li class="flex items-start gap-2.5 p-2.5 rounded-2xl bg-cream">
+              <span class="px-2 py-0.5 rounded-md bg-amber-500 text-white text-[10px] font-bold shrink-0 mt-0.5">注意</span>
+              <span><strong>尊重僧侶與頭部：</strong>女性不可觸碰僧侶身體或袈裟；勿隨意觸摸當地人或小孩頭部；坐下時避免將腳底板朝向佛像或他人。</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ================= 分頁 4：隨身小工具 (Tools) ================= -->
+      <section id="tab-tools" class="tab-content hidden space-y-4">
+        <!-- 泰銖 <-> 台幣即時雙向匯率換算器 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <i class="ph-fill ph-currency-circle-dollar text-lg"></i>
+              </span>
+              <div>
+                <h2 class="text-sm font-bold text-stone-900">泰銖 ↔ 台幣即時換算</h2>
+                <p class="text-[11px] text-stone-500">可依現場換匯所牌價微調匯率</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 匯率微調設定列 -->
+          <div class="bg-cream rounded-2xl p-3 border border-stone-200/70 flex items-center justify-between gap-2">
+            <label for="rate-input" class="text-xs font-semibold text-stone-700 flex items-center gap-1">
+              <i class="ph ph-sliders-horizontal text-amber-600"></i>
+              1 泰銖 (THB) ≈
+            </label>
+            <div class="flex items-center gap-1.5">
+              <input type="number" id="rate-input" step="0.01" value="0.95" oninput="handleRateChange()" class="w-20 text-right font-bold text-sm bg-white border border-stone-300 rounded-xl px-2.5 py-1.5 text-stone-900 focus:outline-none focus:border-amber-500" />
+              <span class="text-xs font-semibold text-stone-600">台幣 (TWD)</span>
+            </div>
+          </div>
+
+          <!-- 雙向輸入框 -->
+          <div class="space-y-2.5">
+            <!-- 泰銖輸入 -->
+            <div class="relative bg-stone-50 rounded-2xl p-3 border border-stone-200 focus-within:border-amber-500 focus-within:bg-white transition-all">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-amber-800 flex items-center gap-1.5">
+                  🇹🇭 泰銖 THB
+                </span>
+                <button onclick="clearCurrency()" class="text-[11px] text-stone-400 hover:text-stone-600">清除</button>
+              </div>
+              <input type="number" id="thb-input" placeholder="輸入泰銖金額" oninput="convertFromTHB()" class="w-full bg-transparent text-2xl font-bold text-stone-900 focus:outline-none" />
+            </div>
+
+            <!-- 快捷泰銖金額按鈕 -->
+            <div class="grid grid-cols-5 gap-1.5">
+              <button onclick="setQuickTHB(20)" class="py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold tap-scale">20 ฿</button>
+              <button onclick="setQuickTHB(100)" class="py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold tap-scale">100 ฿</button>
+              <button onclick="setQuickTHB(500)" class="py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold tap-scale">500 ฿</button>
+              <button onclick="setQuickTHB(1000)" class="py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold tap-scale">1000 ฿</button>
+              <button onclick="setQuickTHB(2000)" class="py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-200/80 text-xs font-semibold tap-scale">2000 ฿</button>
+            </div>
+
+            <!-- 台幣輸入 -->
+            <div class="relative bg-stone-50 rounded-2xl p-3 border border-stone-200 focus-within:border-deepTeal focus-within:bg-white transition-all">
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-deepTeal flex items-center gap-1.5">
+                  🇹🇼 新台幣 TWD
+                </span>
+                <span class="text-[11px] text-stone-400">可反向輸入台幣換算</span>
+              </div>
+              <input type="number" id="twd-input" placeholder="輸入台幣金額" oninput="convertFromTWD()" class="w-full bg-transparent text-2xl font-bold text-stone-900 focus:outline-none" />
+            </div>
+          </div>
+
+          <!-- 泰國常用小費速查提示 -->
+          <div class="bg-stone-50 rounded-2xl p-3 border border-stone-200/70 text-[11px] text-stone-600 space-y-1">
+            <div class="font-bold text-stone-800 mb-1">💡 曼谷常用小費參考（請給紙鈔勿給硬幣）</div>
+            <div class="flex justify-between"><span>飯店床頭 / 行李員</span><span class="font-semibold text-stone-800">20 – 50 泰銖</span></div>
+            <div class="flex justify-between"><span>平價泰式按摩（1 小時）</span><span class="font-semibold text-stone-800">50 – 100 泰銖</span></div>
+            <div class="flex justify-between"><span>SPA 水療中心</span><span class="font-semibold text-stone-800">100 – 200 泰銖</span></div>
+          </div>
+        </div>
+
+        <!-- 曼谷緊急聯絡電話一鍵撥號/複製卡 -->
+        <div class="bg-white rounded-3xl p-4 border border-stone-200/80 shadow-xs space-y-3">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-red-100 text-red-600 flex items-center justify-center">
+              <i class="ph-fill ph-phone-call text-lg"></i>
+            </span>
+            <div>
+              <h2 class="text-sm font-bold text-stone-900">泰國緊急聯絡電話（一鍵快撥/複製）</h2>
+              <p class="text-[11px] text-stone-500">建議截圖留存，遇突發狀況可立即求助</p>
+            </div>
+          </div>
+
+          <div class="space-y-2.5">
+            <!-- 觀光警察 -->
+            <div class="p-3 rounded-2xl bg-cream border border-stone-200/80 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-stone-900">泰國觀光警察（Tourist Police）</div>
+                <div class="text-[11px] text-stone-500">24 小時專線・提供英文及中文翻譯協助</div>
+                <div class="text-base font-bold text-deepTeal mt-0.5">1155</div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button onclick="copyText('1155', '已複製觀光警察電話 1155')" class="p-2.5 rounded-xl bg-white border border-stone-200 text-stone-600 tap-scale" aria-label="複製號碼">
+                  <i class="ph ph-copy text-base"></i>
+                </button>
+                <a href="tel:1155" class="px-3 py-2.5 rounded-xl bg-deepTeal text-white text-xs font-semibold flex items-center gap-1 tap-scale">
+                  <i class="ph-fill ph-phone"></i> 撥打
+                </a>
+              </div>
+            </div>
+
+            <!-- 駐泰國台北經濟文化辦事處 -->
+            <div class="p-3 rounded-2xl bg-red-50/70 border border-red-200/80 flex items-center justify-between gap-2">
+              <div>
+                <div class="text-xs font-bold text-red-950">駐泰國台北經濟文化辦事處（急難救助）</div>
+                <div class="text-[11px] text-red-800/80">護照遺失、重大意外、人身安全緊急求助</div>
+                <div class="text-sm font-bold text-red-700 mt-0.5">+66-81-666-4006</div>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="copyText('+66816664006', '已複製駐泰辦事處急難救助電話')" class="p-2.5 rounded-xl bg-white border border-red-200 text-red-700 tap-scale" aria-label="複製號碼">
+                  <i class="ph ph-copy text-base"></i>
+                </button>
+                <a href="tel:+66816664006" class="px-3 py-2.5 rounded-xl bg-red-600 text-white text-xs font-semibold flex items-center gap-1 tap-scale">
+                  <i class="ph-fill ph-phone"></i> 撥打
+                </a>
+              </div>
+            </div>
+
+            <!-- 報警 & 救護車雙欄 -->
+            <div class="grid grid-cols-2 gap-2.5">
+              <div class="p-3 rounded-2xl bg-cream border border-stone-200/80 flex flex-col justify-between">
+                <div>
+                  <div class="text-xs font-bold text-stone-900">泰國報警專線</div>
+                  <div class="text-lg font-bold text-stone-800 my-1">191</div>
+                </div>
+                <div class="flex gap-1.5 mt-1">
+                  <button onclick="copyText('191', '已複製報警電話 191')" class="flex-1 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium tap-scale">複製</button>
+                  <a href="tel:191" class="flex-1 py-1.5 rounded-lg bg-stone-800 text-white text-xs font-semibold text-center tap-scale">撥打</a>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-2xl bg-cream border border-stone-200/80 flex flex-col justify-between">
+                <div>
+                  <div class="text-xs font-bold text-stone-900">緊急救護車</div>
+                  <div class="text-lg font-bold text-terracotta my-1">1669</div>
+                </div>
+                <div class="flex gap-1.5 mt-1">
+                  <button onclick="copyText('1669', '已複製救護車電話 1669')" class="flex-1 py-1.5 rounded-lg bg-white border border-stone-200 text-stone-600 text-xs font-medium tap-scale">複製</button>
+                  <a href="tel:1669" class="flex-1 py-1.5 rounded-lg bg-terracotta text-white text-xs font-semibold text-center tap-scale">撥打</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 底部固定導覽列 (4 個分頁) -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] z-40 bg-white/95 backdrop-blur-md border-t border-stone-200 px-2 pt-2 pb-safe shadow-[0_-4px_20px_rgba(0,0,0,0.04)]">
+      <div class="grid grid-cols-4 gap-1">
+        <button onclick="switchTab('checklist')" id="nav-checklist" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-terracotta bg-amber-50/80 transition-all tap-scale">
+          <i class="ph-fill ph-check-square-offset text-xl mb-0.5"></i>
+          <span class="text-[11px] font-bold">行前清單</span>
+        </button>
+
+        <button onclick="switchTab('arrival')" id="nav-arrival" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-stone-500 hover:text-stone-800 transition-all tap-scale">
+          <i class="ph ph-airplane-landing text-xl mb-0.5"></i>
+          <span class="text-[11px] font-medium">抵達指南</span>
+        </button>
+
+        <button onclick="switchTab('rules')" id="nav-rules" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-stone-500 hover:text-stone-800 transition-all tap-scale">
+          <i class="ph ph-plugs-connected text-xl mb-0.5"></i>
+          <span class="text-[11px] font-medium">電壓禁忌</span>
+        </button>
+
+        <button onclick="switchTab('tools')" id="nav-tools" class="nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-stone-500 hover:text-stone-800 transition-all tap-scale">
+          <i class="ph ph-calculator text-xl mb-0.5"></i>
+          <span class="text-[11px] font-medium">隨身工具</span>
+        </button>
+      </div>
+    </nav>
+
   </div>
-</div>
 
-<button id="burnBtn">燒金紙 🙏</button>
+  <!-- 應用程式互動邏輯 -->
+  <script>
+    // 1. 行前清單資料庫
+    const checklistData = [
+      {
+        category: "出發前 3–7 天",
+        badgeColor: "bg-deepTeal/10 text-deepTeal",
+        icon: "ph-calendar-check",
+        items: [
+          {
+            id: "prep_1",
+            title: "確認護照效期滿 6 個月以上",
+            desc: "自抵達泰國當日起算需滿 6 個月（台灣護照享觀光免簽最長 30 天）。"
+          },
+          {
+            id: "prep_2",
+            title: "備妥回程機票與英文住宿訂單",
+            desc: "建議將 PDF 存為手機離線檔案或列印紙本，以備移民官查驗。"
+          },
+          {
+            id: "prep_3",
+            title: "準備足額入境備查實體現金",
+            desc: "個人至少 20,000 泰銖／家庭 40,000 泰銖（或等值台幣、美金現鈔），海關抽查僅認實體紙鈔。"
+          },
+          {
+            id: "prep_4",
+            title: "在台灣先下載並完成 Grab / Bolt 註冊",
+            desc: "需接收簡訊驗證碼，在台灣先綁定信用卡或設定現金付款最順暢。"
+          },
+          {
+            id: "prep_5",
+            title: "確認泰國網卡（eSIM 建議出發前先掃碼安裝）",
+            desc: "在台先加入 eSIM 方案，落地滑行切換行動數據即可秒連網。"
+          }
+        ]
+      },
+      {
+        category: "出發前 72 小時內",
+        badgeColor: "bg-amber-100 text-amber-800",
+        icon: "ph-clock-countdown",
+        items: [
+          {
+            id: "tdac_1",
+            title: "填寫泰國數位入境卡（TDAC）並截圖 QR Code",
+            desc: "抵達前 3 天內至官網免費填報（切勿進入收費釣魚網站）。",
+            copyUrl: "https://tdac.immigration.go.th",
+            copyLabel: "複製官網 tdac.immigration.go.th"
+          }
+        ]
+      },
+      {
+        category: "行李與電壓檢查",
+        badgeColor: "bg-terracotta/15 text-terracotta",
+        icon: "ph-suitcase-rolling",
+        items: [
+          {
+            id: "pack_1",
+            title: "確認行李無任何電子煙及加熱菸",
+            desc: "泰國全面嚴禁電子煙與煙油，隨身或託運查獲皆面臨重罰或監禁。"
+          },
+          {
+            id: "pack_2",
+            title: "檢查充電器支援 100V–240V",
+            desc: "泰國為 220V/50Hz，台灣雙腳扁頭可直插；單一 110V 吹風機／離子夾禁帶。"
+          },
+          {
+            id: "pack_3",
+            title: "準備至少一套「遮肩過膝」端莊服裝",
+            desc: "參觀大皇宮、鄭王廟等寺廟不可露肩、露肚或穿膝上短褲／破洞褲。"
+          }
+        ]
+      },
+      {
+        category: "抵達曼谷機場",
+        badgeColor: "bg-emerald-100 text-emerald-800",
+        icon: "ph-airplane-landing",
+        items: [
+          {
+            id: "arr_1",
+            title: "出示護照與 TDAC QR Code 辦理入境查驗",
+            desc: "排隊前先調高手機螢幕亮度，開啟相簿截圖加快通關速度。"
+          },
+          {
+            id: "arr_2",
+            title: "同行親友免稅菸酒各自拿在手上／包內",
+            desc: "每人限 1 條菸（200 支）與 1 公升酒，集中裝同一袋會被海關認定超帶重罰。"
+          },
+          {
+            id: "arr_3",
+            title: "BKK 機場前往 B1 機場快線旁換匯",
+            desc: "SuperRich 橘標／Happy Rich 匯率較佳（備護照正本，多換 100 泰銖小鈔）。"
+          }
+        ]
+      }
+    ];
 
-<script>
-  let count = 0;
-  const btn = document.getElementById('burnBtn');
-  const countEl = document.getElementById('count');
-  const dog = document.getElementById('dog');
-  const fireWrapper = document.getElementById('fireWrapper');
-  const scene = document.getElementById('scene');
+    // 狀態變數
+    const STORAGE_KEY = 'bangkok_travel_checklist_2026';
+    const RATE_STORAGE_KEY = 'bangkok_travel_rate_2026';
+    let checkedState = {};
+    let currentFilter = 'all';
 
-  // 熱量系統變數
-  let currentHeat = 0.6; 
-  const minHeat = 0.6;   
-  const maxHeat = 3.5;   
-  const heatPerPaper = 0.4; 
-  const decayRate = 0.02;   
+    // 初始化應用程式
+    function initApp() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          checkedState = JSON.parse(saved);
+        }
+        const savedRate = localStorage.getItem(RATE_STORAGE_KEY);
+        if (savedRate) {
+          document.getElementById('rate-input').value = savedRate;
+        }
+      } catch (e) {
+        console.error('讀取儲存狀態失敗:', e);
+      }
 
-  btn.addEventListener('click', () => {
-    // 狗狗丟金紙動畫
-    dog.classList.remove('animate-dog');
-    void dog.offsetWidth; 
-    dog.classList.add('animate-dog');
-
-    // 產生飛行金紙
-    const paper = document.createElement('div');
-    paper.className = 'flying-paper';
-    scene.appendChild(paper);
-
-    const flyDuration = 350; 
-    paper.style.animation = `throwPaper ${flyDuration}ms forwards ease-in-out`;
-
-    // 抵達火爐後觸發
-    setTimeout(() => {
-      paper.remove(); 
-      count++;
-      countEl.textContent = count;
-
-      currentHeat += heatPerPaper;
-      if (currentHeat > maxHeat) currentHeat = maxHeat; 
-      updateFireScale();
-
-    }, flyDuration);
-  });
-
-  // 更新火焰大小
-  function updateFireScale() {
-    fireWrapper.style.transform = `scale(${currentHeat})`;
-    if(currentHeat > 2.0) {
-       fireWrapper.style.filter = 'brightness(1.2)';
-    } else {
-       fireWrapper.style.filter = 'brightness(1)';
+      renderChecklist();
+      updateProgress();
+      // 預設填入 1000 泰銖方便查看
+      setQuickTHB(1000);
     }
-  }
 
-  // 自動冷卻系統
-  setInterval(() => {
-    if (currentHeat > minHeat) {
-      currentHeat -= decayRate;
-      if (currentHeat < minHeat) currentHeat = minHeat;
-      updateFireScale();
+    // 渲染行前清單卡片
+    function renderChecklist() {
+      const container = document.getElementById('checklist-container');
+      container.innerHTML = '';
+
+      let visibleItemsCount = 0;
+
+      checklistData.forEach(group => {
+        // 依據篩選條件過濾項目
+        const filteredItems = group.items.filter(item => {
+          if (currentFilter === 'uncompleted') {
+            return !checkedState[item.id];
+          }
+          return true;
+        });
+
+        if (filteredItems.length === 0) return;
+        visibleItemsCount += filteredItems.length;
+
+        const groupEl = document.createElement('div');
+        groupEl.className = 'space-y-2';
+
+        // 分類標題列
+        const headerHtml = `
+          <div class="flex items-center justify-between px-1">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-bold ${group.badgeColor}">
+              <i class="ph-fill ${group.icon}"></i>
+              ${group.category}
+            </span>
+            <span class="text-[11px] text-stone-400 font-medium">
+              ${group.items.filter(i => checkedState[i.id]).length} / ${group.items.length}
+            </span>
+          </div>
+        `;
+
+        // 項目列表
+        const itemsHtml = filteredItems.map(item => {
+          const isChecked = !!checkedState[item.id];
+          return `
+            <div onclick="toggleItem('${item.id}')" class="bg-white rounded-2xl p-3.5 border transition-all cursor-pointer tap-scale select-none ${isChecked ? 'border-emerald-200/80 bg-emerald-50/30' : 'border-stone-200/80 shadow-2xs hover:border-amber-300'}">
+              <div class="flex items-start gap-3">
+                <!-- 自訂核取方塊 -->
+                <div class="mt-0.5 w-5 h-5 rounded-lg flex items-center justify-center shrink-0 transition-colors ${isChecked ? 'bg-emerald-500 text-white' : 'border-2 border-stone-300 bg-white'}">
+                  ${isChecked ? '<i class="ph-bold ph-check text-xs"></i>' : ''}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-xs font-bold leading-snug transition-colors ${isChecked ? 'line-through text-stone-400' : 'text-stone-900'}">
+                    ${item.title}
+                  </div>
+                  <p class="text-[11px] leading-relaxed mt-1 ${isChecked ? 'text-stone-400' : 'text-stone-500'}">
+                    ${item.desc}
+                  </p>
+                  ${item.copyUrl ? `
+                    <button type="button" onclick="event.stopPropagation(); copyText('${item.copyUrl}', '已複製 TDAC 官網網址')" class="mt-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-amber-100/90 hover:bg-amber-200 text-amber-900 text-[11px] font-semibold transition-colors">
+                      <i class="ph-bold ph-copy"></i>
+                      ${item.copyLabel}
+                    </button>
+                  ` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        groupEl.innerHTML = headerHtml + `<div class="space-y-2">${itemsHtml}</div>`;
+        container.appendChild(groupEl);
+      });
+
+      // 若篩選「僅看未完成」且全部完成時顯示鼓勵卡片
+      if (visibleItemsCount === 0 && currentFilter === 'uncompleted') {
+        container.innerHTML = `
+          <div class="bg-white rounded-3xl p-8 text-center border border-stone-200/80 space-y-2">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-2">
+              <i class="ph-fill ph-confetti text-2xl"></i>
+            </div>
+            <h3 class="text-sm font-bold text-stone-900">太棒了！所有項目皆已完成</h3>
+            <p class="text-xs text-stone-500">祝您有一趟平安順心、美食滿滿的曼谷旅程！</p>
+          </div>
+        `;
+      }
     }
-  }, 50);
-</script>
+
+    // 切換勾選狀態
+    function toggleItem(id) {
+      checkedState[id] = !checkedState[id];
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(checkedState));
+      } catch (e) {
+        console.error('儲存進度失敗:', e);
+      }
+      renderChecklist();
+      updateProgress();
+    }
+
+    // 更新頂部進度條
+    function updateProgress() {
+      const allItems = checklistData.flatMap(g => g.items);
+      const total = allItems.length;
+      const completed = allItems.filter(i => checkedState[i.id]).length;
+      const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+
+      document.getElementById('progress-text').textContent = `已完成 ${completed} / ${total} 項 (${percent}%)`;
+      document.getElementById('progress-bar').style.width = `${percent}%`;
+
+      const badge = document.getElementById('header-badge');
+      if (completed === total && total > 0) {
+        badge.textContent = '準備完成 ✈️';
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200';
+      } else {
+        badge.textContent = `還差 ${total - completed} 項`;
+        badge.className = 'text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800 border border-amber-200';
+      }
+    }
+
+    // 篩選切換
+    function setFilter(filterType) {
+      currentFilter = filterType;
+      const btnAll = document.getElementById('filter-all');
+      const btnUn = document.getElementById('filter-uncompleted');
+
+      if (filterType === 'all') {
+        btnAll.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-stone-900 shadow-xs transition-all';
+        btnUn.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 transition-all';
+      } else {
+        btnUn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-stone-900 shadow-xs transition-all';
+        btnAll.className = 'px-3 py-1.5 rounded-lg text-xs font-medium text-stone-600 transition-all';
+      }
+      renderChecklist();
+    }
+
+    // 重置對話框控制
+    function openResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-modal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function confirmResetChecklist() {
+      checkedState = {};
+      try {
+        localStorage.removeItem(STORAGE_KEY);
+      } catch (e) {}
+      closeResetModal();
+      renderChecklist();
+      updateProgress();
+      showToast('已重置所有行前清單勾選');
+    }
+
+    // 底部導覽分頁切換
+    function switchTab(tabName) {
+      // 隱藏所有內容區
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+      // 重設所有導覽按鈕樣式
+      const navIds = ['checklist', 'arrival', 'rules', 'tools'];
+      navIds.forEach(id => {
+        const btn = document.getElementById(`nav-${id}`);
+        const icon = btn.querySelector('i');
+        const label = btn.querySelector('span');
+        if (id === tabName) {
+          btn.className = 'nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-terracotta bg-amber-50/80 transition-all tap-scale';
+          icon.className = icon.className.replace('ph ', 'ph-fill ');
+          label.className = 'text-[11px] font-bold';
+        } else {
+          btn.className = 'nav-btn flex flex-col items-center justify-center py-1.5 rounded-2xl text-stone-500 hover:text-stone-800 transition-all tap-scale';
+          icon.className = icon.className.replace('ph-fill ', 'ph ');
+          label.className = 'text-[11px] font-medium';
+        }
+      });
+
+      // 滾動至頂部
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // 匯率換算邏輯
+    function getRate() {
+      const val = parseFloat(document.getElementById('rate-input').value);
+      return isNaN(val) || val <= 0 ? 0.95 : val;
+    }
+
+    function handleRateChange() {
+      const rate = getRate();
+      try {
+        localStorage.setItem(RATE_STORAGE_KEY, rate.toString());
+      } catch (e) {}
+      convertFromTHB();
+    }
+
+    function convertFromTHB() {
+      const thb = parseFloat(document.getElementById('thb-input').value);
+      const twdInput = document.getElementById('twd-input');
+      if (isNaN(thb)) {
+        twdInput.value = '';
+        return;
+      }
+      const twd = thb * getRate();
+      twdInput.value = Math.round(twd * 10) / 10;
+    }
+
+    function convertFromTWD() {
+      const twd = parseFloat(document.getElementById('twd-input').value);
+      const thbInput = document.getElementById('thb-input');
+      if (isNaN(twd)) {
+        thbInput.value = '';
+        return;
+      }
+      const thb = twd / getRate();
+      thbInput.value = Math.round(thb * 10) / 10;
+    }
+
+    function setQuickTHB(amount) {
+      document.getElementById('thb-input').value = amount;
+      convertFromTHB();
+    }
+
+    function clearCurrency() {
+      document.getElementById('thb-input').value = '';
+      document.getElementById('twd-input').value = '';
+    }
+
+    // 複製文字到剪貼簿 (相容 iFrame 環境)
+    function copyText(text, successMsg) {
+      const tempInput = document.createElement('textarea');
+      tempInput.value = text;
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      try {
+        document.execCommand('copy');
+        showToast(successMsg || '已複製到剪貼簿');
+      } catch (err) {
+        showToast('複製失敗，請手動長按選取');
+      }
+      document.body.removeChild(tempInput);
+    }
+
+    // 顯示懸浮提示 Toast
+    let toastTimer = null;
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toast-msg');
+      toastMsg.textContent = message;
+
+      toast.classList.remove('opacity-0', 'translate-y-[-10px]');
+      toast.classList.add('opacity-100', 'translate-y-0');
+
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.remove('opacity-100', 'translate-y-0');
+        toast.classList.add('opacity-0', 'translate-y-[-10px]');
+      }, 2200);
+    }
+
+    // 啟動初始化
+    window.addEventListener('DOMContentLoaded', initApp);
+  </script>
 </body>
 </html>
